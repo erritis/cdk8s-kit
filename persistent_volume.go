@@ -1,4 +1,4 @@
-package main
+package cdk8skit
 
 import (
 	"fmt"
@@ -10,9 +10,9 @@ import (
 )
 
 type TuplePersistent struct {
-	persistent cdk8splus26.PersistentVolume
-	volume     cdk8splus26.Volume
-	claim      cdk8splus26.IPersistentVolumeClaim
+	Persistent cdk8splus26.PersistentVolume
+	Volume     cdk8splus26.Volume
+	Claim      cdk8splus26.IPersistentVolumeClaim
 }
 
 func NewVolume(scope constructs.Construct, storageClassName string, id string, capacity cdk8s.Size) TuplePersistent {
@@ -55,8 +55,8 @@ func NewVolume(scope constructs.Construct, storageClassName string, id string, c
 	)
 
 	return TuplePersistent{
-		persistent: persistent,
-		volume:     volume,
-		claim:      claim,
+		Persistent: persistent,
+		Volume:     volume,
+		Claim:      claim,
 	}
 }

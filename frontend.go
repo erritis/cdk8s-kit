@@ -1,4 +1,4 @@
-package main
+package cdk8skit
 
 import (
 	"github.com/aws/constructs-go/constructs/v10"
@@ -7,9 +7,9 @@ import (
 )
 
 type TupleFrontend struct {
-	deployment cdk8splus26.Deployment
-	service    cdk8splus26.Service
-	ingress    cdk8splus26.Ingress
+	Deployment cdk8splus26.Deployment
+	Service    cdk8splus26.Service
+	Ingress    cdk8splus26.Ingress
 }
 
 func NewFrontend(
@@ -33,13 +33,13 @@ func NewFrontend(
 	ingress.AddHostRule(
 		host,
 		jsii.String("/"),
-		cdk8splus26.IngressBackend_FromService(backend.service, nil),
+		cdk8splus26.IngressBackend_FromService(backend.Service, nil),
 		cdk8splus26.HttpIngressPathType_PREFIX,
 	)
 
 	return TupleFrontend{
-		deployment: backend.deployment,
-		service:    backend.service,
-		ingress:    ingress,
+		Deployment: backend.Deployment,
+		Service:    backend.Service,
+		Ingress:    ingress,
 	}
 }

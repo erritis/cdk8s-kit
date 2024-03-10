@@ -1,4 +1,4 @@
-package main
+package cdk8skit
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 )
 
 type TupleBackend struct {
-	deployment cdk8splus26.Deployment
-	service    cdk8splus26.Service
+	Deployment cdk8splus26.Deployment
+	Service    cdk8splus26.Service
 }
 
 func NewBackend(
@@ -75,7 +75,7 @@ func NewBackend(
 	})
 
 	return TupleBackend{
-		deployment: deployment,
-		service:    service,
+		Deployment: deployment,
+		Service:    service,
 	}
 }

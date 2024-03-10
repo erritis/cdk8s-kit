@@ -1,4 +1,4 @@
-package main
+package cdk8skit
 
 import (
 	"github.com/aws/constructs-go/constructs/v10"
@@ -17,14 +17,14 @@ func NewLocalVolume(
 
 	dbData := NewVolume(scope, storageClassName, id, capacity)
 
-	dbData.persistent.ApiObject().AddJsonPatch(
+	dbData.Persistent.ApiObject().AddJsonPatch(
 		cdk8s.JsonPatch_Add(
 			jsii.String("/spec/local"),
 			&map[string]string{"path": folder},
 		),
 	)
 
-	dbData.persistent.ApiObject().AddJsonPatch(
+	dbData.Persistent.ApiObject().AddJsonPatch(
 		cdk8s.JsonPatch_Add(
 			jsii.String("/spec/nodeAffinity"),
 			&map[string]interface{}{

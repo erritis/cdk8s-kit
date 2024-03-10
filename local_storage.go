@@ -1,4 +1,4 @@
-package main
+package cdk8skit
 
 import (
 	"github.com/aws/constructs-go/constructs/v10"
