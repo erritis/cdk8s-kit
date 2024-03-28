@@ -6,21 +6,32 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 )
 
+type LocalVolumeProps struct {
+	VolumeProps *VolumeProps
+	Nodes       *[]string
+}
+
+func (props *LocalVolumeProps) defaultProps() {
+	if props.Nodes == nil {
+		props.Nodes = &[]string{"master-node"}
+	}
+}
+
 func NewLocalVolume(
 	scope constructs.Construct,
-	storageClassName string,
 	id string,
-	capacity cdk8s.Size,
-	folder string,
-	nodes *[]string,
+	folder *string,
+	props *LocalVolumeProps,
 ) TuplePersistent {
 
-	dbData := NewVolume(scope, storageClassName, id, capacity)
+	props.defaultProps()
+
+	dbData := NewVolume(scope, id, props.VolumeProps)
 
 	dbData.Persistent.ApiObject().AddJsonPatch(
 		cdk8s.JsonPatch_Add(
 			jsii.String("/spec/local"),
-			&map[string]string{"path": folder},
+			&map[string]string{"path": *folder},
 		),
 	)
 
@@ -35,7 +46,7 @@ func NewLocalVolume(
 								&map[string]interface{}{
 									"key":      jsii.String("kubernetes.io/hostname"),
 									"operator": jsii.String("In"),
-									"values":   nodes,
+									"values":   props.Nodes,
 								},
 							},
 						},

@@ -15,7 +15,24 @@ type TuplePersistent struct {
 	Claim      cdk8splus26.IPersistentVolumeClaim
 }
 
-func NewVolume(scope constructs.Construct, storageClassName string, id string, capacity cdk8s.Size) TuplePersistent {
+type VolumeProps struct {
+	StorageClassName *string
+	Capacity         *cdk8s.Size
+}
+
+func (props *VolumeProps) defaultProps() {
+	if props.StorageClassName == nil {
+		props.StorageClassName = jsii.String("default")
+	}
+	if props.Capacity == nil {
+		capacity := cdk8s.Size_Gibibytes(jsii.Number(0.1))
+		props.Capacity = &capacity
+	}
+}
+
+func NewVolume(scope constructs.Construct, id string, props *VolumeProps) TuplePersistent {
+
+	props.defaultProps()
 
 	claim_id := fmt.Sprintf("%s-claim", id)
 
@@ -34,8 +51,8 @@ func NewVolume(scope constructs.Construct, storageClassName string, id string, c
 			cdk8splus26.PersistentVolumeAccessMode_READ_ONLY_MANY,
 		},
 		ReclaimPolicy:    cdk8splus26.PersistentVolumeReclaimPolicy_RETAIN,
-		Storage:          capacity,
-		StorageClassName: jsii.String(storageClassName),
+		Storage:          *props.Capacity,
+		StorageClassName: props.StorageClassName,
 		Claim:            claim,
 	}
 

@@ -1,4 +1,4 @@
-module github.com/erritis/cdk8skit
+module github.com/erritis/cdk8skit/v2
 
 go 1.22.0
 

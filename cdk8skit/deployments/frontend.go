@@ -4,6 +4,7 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
+	configs "github.com/erritis/cdk8skit/v2/cdk8skit/configs"
 )
 
 type TupleFrontend struct {
@@ -12,23 +13,43 @@ type TupleFrontend struct {
 	Ingress    cdk8splus26.Ingress
 }
 
+type FrontendProps struct {
+	PortConfig    *configs.ServicePortConfig
+	Network       *string
+	Variables     *map[*string]*string
+	ClusterIssuer *string
+}
+
+func (props *FrontendProps) defaultProps() {
+
+	if props.PortConfig == nil {
+		props.PortConfig = &configs.ServicePortConfig{}
+	}
+}
+
 func NewFrontend(
 	scope constructs.Construct,
 	id string,
 	host *string,
-	cluster_issuer *string,
 	image *string,
-	port *float64,
-	containerPort *float64,
-	network string,
-	variables *map[*string]*string,
+	props *FrontendProps,
 ) TupleFrontend {
-	backend := NewBackend(scope, id, image, port, containerPort, network, variables)
+
+	props.defaultProps()
+
+	backend := NewBackend(scope, id, image, &BackendProps{
+		PortConfig: props.PortConfig,
+		Network:    props.Network,
+		Variables:  props.Variables,
+	})
 
 	ingress := cdk8splus26.NewIngress(scope, jsii.String("ingress"), nil)
 
 	ingress.Metadata().AddLabel(jsii.String("io.service"), jsii.String(id))
-	ingress.Metadata().AddAnnotation(jsii.String("cert-manager.io/cluster-issuer"), cluster_issuer)
+
+	if props.ClusterIssuer != nil {
+		ingress.Metadata().AddAnnotation(jsii.String("cert-manager.io/cluster-issuer"), props.ClusterIssuer)
+	}
 
 	ingress.AddHostRule(
 		host,

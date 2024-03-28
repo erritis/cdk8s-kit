@@ -7,6 +7,7 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
+	configs "github.com/erritis/cdk8skit/v2/cdk8skit/configs"
 )
 
 type TupleBackend struct {
@@ -14,20 +15,38 @@ type TupleBackend struct {
 	Service    cdk8splus26.Service
 }
 
+type BackendProps struct {
+	PortConfig *configs.ServicePortConfig
+	Network    *string
+	Variables  *map[*string]*string
+}
+
+func (props *BackendProps) defaultProps() {
+
+	if props.PortConfig == nil {
+		props.PortConfig = &configs.ServicePortConfig{}
+	}
+	if props.PortConfig.Port == nil {
+		props.PortConfig.Port = jsii.Number(80)
+	}
+	if props.PortConfig.ContainerPort == nil {
+		props.PortConfig.ContainerPort = jsii.Number(8080)
+	}
+}
+
 func NewBackend(
 	scope constructs.Construct,
 	id string,
 	image *string,
-	port *float64,
-	containerPort *float64,
-	network string,
-	variables *map[*string]*string,
+	props *BackendProps,
 ) TupleBackend {
+
+	props.defaultProps()
 
 	container := cdk8splus26.NewContainer(&cdk8splus26.ContainerProps{
 		Name:       jsii.String(id),
 		Image:      image,
-		PortNumber: containerPort,
+		PortNumber: props.PortConfig.ContainerPort,
 		Resources: &cdk8splus26.ContainerResources{
 			Cpu:              nil,
 			EphemeralStorage: nil,
@@ -39,8 +58,14 @@ func NewBackend(
 		},
 	})
 
-	for k, v := range *variables {
+	for k, v := range *props.Variables {
 		container.Env().AddVariable(k, cdk8splus26.EnvValue_FromValue(v))
+	}
+
+	labels := make(map[string]*string)
+
+	if props.Network != nil {
+		labels[*props.Network] = jsii.String("true")
 	}
 
 	deployment := cdk8splus26.NewDeployment(
@@ -52,9 +77,7 @@ func NewBackend(
 				EnsureNonRoot: jsii.Bool(false),
 			},
 			PodMetadata: &cdk8s.ApiObjectMetadata{
-				Labels: &map[string]*string{
-					network: jsii.String("true"),
-				},
+				Labels: &labels,
 			},
 		},
 	)
@@ -68,8 +91,8 @@ func NewBackend(
 		ServiceType: cdk8splus26.ServiceType_CLUSTER_IP,
 		Ports: &[]*cdk8splus26.ServicePort{
 			{
-				Port:       port,
-				TargetPort: containerPort,
+				Port:       props.PortConfig.Port,
+				TargetPort: props.PortConfig.ContainerPort,
 			},
 		},
 	})
