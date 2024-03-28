@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
+	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
 	configs "github.com/erritis/cdk8skit/v2/cdk8skit/configs"
 	volumes "github.com/erritis/cdk8skit/v2/cdk8skit/volumes"
@@ -29,6 +30,7 @@ type PostgresProps struct {
 	VolumeDefaultConfig *VolumeDefaultConfig
 	Volume              *cdk8splus26.Volume
 	Network             *string
+	Liveness            cdk8splus26.Probe
 }
 
 func (props *PostgresProps) defaultProps(scope constructs.Construct) {
@@ -38,6 +40,17 @@ func (props *PostgresProps) defaultProps(scope constructs.Construct) {
 	if props.PrefixSecretName == nil {
 		props.PrefixSecretName = jsii.String("postgres")
 	}
+
+	props.defaultDbProps()
+
+	props.defaultPortProps()
+
+	props.defaultVolumeProps(scope)
+
+	props.defaultLivenessProps()
+}
+
+func (props *PostgresProps) defaultDbProps() {
 	if props.DBConfig == nil {
 		props.DBConfig = &DBConfig{}
 	}
@@ -50,6 +63,9 @@ func (props *PostgresProps) defaultProps(scope constructs.Construct) {
 	if props.DBConfig.Password == nil {
 		props.DBConfig.Password = jsii.String("postgres")
 	}
+}
+
+func (props *PostgresProps) defaultPortProps() {
 	if props.PortConfig == nil {
 		props.PortConfig = &configs.ServicePortConfig{}
 	}
@@ -59,19 +75,39 @@ func (props *PostgresProps) defaultProps(scope constructs.Construct) {
 	if props.PortConfig.ContainerPort == nil {
 		props.PortConfig.ContainerPort = jsii.Number(5432)
 	}
+}
+
+func (props *PostgresProps) defaultVolumeProps(scope constructs.Construct) {
 	if props.VolumeDefaultConfig == nil {
 		props.VolumeDefaultConfig = &VolumeDefaultConfig{}
 	}
 	if props.VolumeDefaultConfig.PrefixPersistentName == nil {
 		props.VolumeDefaultConfig.PrefixPersistentName = jsii.String("persistent-volume")
 	}
-	if props.Volume == nil {
+	if *props.Volume == nil {
 		disk := volumes.NewVolume(
 			scope,
 			*props.VolumeDefaultConfig.PrefixPersistentName,
 			props.VolumeDefaultConfig.VolumeProps,
 		)
 		props.Volume = &disk.Volume
+	}
+}
+
+func (props *PostgresProps) defaultLivenessProps() {
+	if props.Liveness == nil {
+		props.Liveness = cdk8splus26.Probe_FromCommand(
+			&[]*string{
+				jsii.String("/bin/sh"),
+				jsii.String("-c"),
+				jsii.String("exec pg_isready -h 127.0.0.1"),
+			},
+			&cdk8splus26.CommandProbeOptions{
+				FailureThreshold: jsii.Number(5),
+				PeriodSeconds:    cdk8s.Duration_Seconds(jsii.Number(5)),
+				TimeoutSeconds:   cdk8s.Duration_Seconds(jsii.Number(5)),
+			},
+		)
 	}
 }
 
@@ -119,6 +155,7 @@ func NewPostgres(
 				jsii.String(fmt.Sprintf("/run/secrets/%s-user", *props.PrefixSecretName)):   &dbUser,
 				jsii.String(fmt.Sprintf("/run/secrets/%s-passwd", *props.PrefixSecretName)): &dbPasswd,
 			},
+			Liveness: props.Liveness,
 		},
 	)
 

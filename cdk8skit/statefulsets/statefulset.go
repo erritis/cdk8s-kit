@@ -13,6 +13,7 @@ type StatefulSetProps struct {
 	Network    *string
 	Variables  *map[*string]*string
 	Volumes    *map[*string]*cdk8splus26.Volume
+	Liveness   cdk8splus26.Probe
 }
 
 func (props *StatefulSetProps) defaultProps() {
@@ -50,6 +51,7 @@ func NewStatefulSet(
 			ReadOnlyRootFilesystem: jsii.Bool(false),
 			EnsureNonRoot:          jsii.Bool(false),
 		},
+		Liveness: props.Liveness,
 	})
 
 	for k, v := range *props.Variables {
