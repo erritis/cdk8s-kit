@@ -120,7 +120,7 @@ func NewPostgres(
 	props.defaultProps(scope)
 
 	db := volumes.NewSecretVolume(
-		scope, "db-secret",
+		scope, "name-secret",
 		props.PrefixSecretName,
 		props.DBConfig.Name,
 	)

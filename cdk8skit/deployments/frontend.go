@@ -17,6 +17,7 @@ type FrontendProps struct {
 	PortConfig    *configs.ServicePortConfig
 	Network       *string
 	Variables     *map[*string]*string
+	Volumes       *map[*string]*cdk8splus26.Volume
 	ClusterIssuer *string
 }
 

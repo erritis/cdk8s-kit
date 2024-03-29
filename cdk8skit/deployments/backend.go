@@ -19,6 +19,7 @@ type BackendProps struct {
 	PortConfig *configs.ServicePortConfig
 	Network    *string
 	Variables  *map[*string]*string
+	Volumes    *map[*string]*cdk8splus26.Volume
 }
 
 func (props *BackendProps) defaultProps() {
@@ -31,6 +32,9 @@ func (props *BackendProps) defaultProps() {
 	}
 	if props.PortConfig.ContainerPort == nil {
 		props.PortConfig.ContainerPort = jsii.Number(8080)
+	}
+	if props.Volumes == nil {
+		props.Volumes = &map[*string]*cdk8splus26.Volume{}
 	}
 }
 
@@ -60,6 +64,11 @@ func NewBackend(
 
 	for k, v := range *props.Variables {
 		container.Env().AddVariable(k, cdk8splus26.EnvValue_FromValue(v))
+	}
+
+	for path, volume := range *props.Volumes {
+		var storage cdk8splus26.IStorage = *volume
+		container.Mount(path, storage, nil)
 	}
 
 	labels := make(map[string]*string)
@@ -96,6 +105,10 @@ func NewBackend(
 			},
 		},
 	})
+
+	for _, volume := range *props.Volumes {
+		deployment.AddVolume(*volume)
+	}
 
 	return TupleBackend{
 		Deployment: deployment,
