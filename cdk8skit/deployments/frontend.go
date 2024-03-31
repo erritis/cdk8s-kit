@@ -4,7 +4,7 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
-	configs "github.com/erritis/cdk8skit/v2/cdk8skit/configs"
+	configs "github.com/erritis/cdk8skit/v3/cdk8skit/configs"
 )
 
 type TupleFrontend struct {

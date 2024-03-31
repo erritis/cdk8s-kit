@@ -5,7 +5,7 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
-	configs "github.com/erritis/cdk8skit/v2/cdk8skit/configs"
+	configs "github.com/erritis/cdk8skit/v3/cdk8skit/configs"
 )
 
 type StatefulSetProps struct {
@@ -100,10 +100,6 @@ func NewStatefulSet(
 
 	statefulset.Metadata().AddLabel(jsii.String("io.service"), jsii.String(id))
 	statefulset.Service().Metadata().AddLabel(jsii.String("io.service"), jsii.String(id))
-
-	for _, volume := range *props.Volumes {
-		statefulset.AddVolume(*volume)
-	}
 
 	return statefulset
 }

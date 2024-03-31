@@ -7,8 +7,9 @@ import (
 )
 
 type LocalVolumeProps struct {
-	VolumeProps *VolumeProps
-	Nodes       *[]string
+	StorageClassName *string
+	Capacity         *cdk8s.Size
+	Nodes            *[]string
 }
 
 func (props *LocalVolumeProps) defaultProps() {
@@ -22,20 +23,23 @@ func NewLocalVolume(
 	id string,
 	folder *string,
 	props *LocalVolumeProps,
-) TuplePersistent {
+) VolumeResource {
 
 	props.defaultProps()
 
-	dbData := NewVolume(scope, id, props.VolumeProps)
+	pvr := NewPersistentVolume(scope, id, &PersistentVolumeProps{
+		StorageClassName: props.StorageClassName,
+		Capacity:         props.Capacity,
+	})
 
-	dbData.Persistent.ApiObject().AddJsonPatch(
+	pvr.PersistentVolume.ApiObject().AddJsonPatch(
 		cdk8s.JsonPatch_Add(
 			jsii.String("/spec/local"),
 			&map[string]string{"path": *folder},
 		),
 	)
 
-	dbData.Persistent.ApiObject().AddJsonPatch(
+	pvr.PersistentVolume.ApiObject().AddJsonPatch(
 		cdk8s.JsonPatch_Add(
 			jsii.String("/spec/nodeAffinity"),
 			&map[string]interface{}{
@@ -56,5 +60,8 @@ func NewLocalVolume(
 		),
 	)
 
-	return dbData
+	return VolumeResource{
+		Volume: pvr.Volume,
+		Claim:  pvr.Claim,
+	}
 }

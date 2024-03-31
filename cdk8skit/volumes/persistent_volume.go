@@ -9,20 +9,20 @@ import (
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
 )
 
-type TuplePersistent struct {
-	Persistent cdk8splus26.PersistentVolume
-	Volume     cdk8splus26.Volume
-	Claim      cdk8splus26.IPersistentVolumeClaim
+type PersistentVolumeResource struct {
+	PersistentVolume cdk8splus26.PersistentVolume
+	Volume           cdk8splus26.Volume
+	Claim            cdk8splus26.IPersistentVolumeClaim
 }
 
-type VolumeProps struct {
+type PersistentVolumeProps struct {
 	StorageClassName *string
 	Capacity         *cdk8s.Size
 }
 
-func (props *VolumeProps) defaultProps() {
+func (props *PersistentVolumeProps) defaultProps() {
 	if props.StorageClassName == nil {
-		props.StorageClassName = jsii.String("default")
+		props.StorageClassName = jsii.String("standard")
 	}
 	if props.Capacity == nil {
 		capacity := cdk8s.Size_Gibibytes(jsii.Number(0.1))
@@ -30,50 +30,47 @@ func (props *VolumeProps) defaultProps() {
 	}
 }
 
-func NewVolume(scope constructs.Construct, id string, props *VolumeProps) TuplePersistent {
+func NewPersistentVolume(scope constructs.Construct, id string, props *PersistentVolumeProps) PersistentVolumeResource {
 
 	props.defaultProps()
 
 	claim_id := fmt.Sprintf("%s-claim", id)
 
-	claim_name := fmt.Sprintf("%s-%s", *scope.Node().Id(), claim_id)
-
-	claim := cdk8splus26.PersistentVolumeClaim_FromClaimName(
-		scope,
-		jsii.String(claim_id),
-		jsii.String(claim_name),
-	)
-
-	persistentProps := cdk8splus26.PersistentVolumeProps{
-		VolumeMode: cdk8splus26.PersistentVolumeMode_FILE_SYSTEM,
-		AccessModes: &[]cdk8splus26.PersistentVolumeAccessMode{
-			cdk8splus26.PersistentVolumeAccessMode_READ_WRITE_ONCE,
-			cdk8splus26.PersistentVolumeAccessMode_READ_ONLY_MANY,
-		},
-		ReclaimPolicy:    cdk8splus26.PersistentVolumeReclaimPolicy_RETAIN,
-		Storage:          *props.Capacity,
+	claim := newClaim(scope, claim_id, &ClaimProps{
 		StorageClassName: props.StorageClassName,
-		Claim:            claim,
-	}
+		Capacity:         props.Capacity,
+	})
 
-	persistent := cdk8splus26.NewPersistentVolume(
-		scope,
-		jsii.String(id),
-		&persistentProps,
-	)
+	claim_name := fmt.Sprintf("%s-%s", *scope.Node().Id(), claim_id)
 
 	volume := cdk8splus26.Volume_FromPersistentVolumeClaim(
 		scope,
-		jsii.String(fmt.Sprintf("%s-ref", claim_id)),
+		jsii.String(fmt.Sprintf("%s-ref", id)),
 		claim,
 		&cdk8splus26.PersistentVolumeClaimVolumeOptions{
 			Name: jsii.String(claim_name),
 		},
 	)
 
-	return TuplePersistent{
-		Persistent: persistent,
-		Volume:     volume,
-		Claim:      claim,
+	persistentVolume := cdk8splus26.NewPersistentVolume(
+		scope,
+		jsii.String(id),
+		&cdk8splus26.PersistentVolumeProps{
+			VolumeMode: cdk8splus26.PersistentVolumeMode_FILE_SYSTEM,
+			AccessModes: &[]cdk8splus26.PersistentVolumeAccessMode{
+				cdk8splus26.PersistentVolumeAccessMode_READ_WRITE_ONCE,
+				cdk8splus26.PersistentVolumeAccessMode_READ_ONLY_MANY,
+			},
+			ReclaimPolicy:    cdk8splus26.PersistentVolumeReclaimPolicy_RETAIN,
+			Storage:          *props.Capacity,
+			StorageClassName: props.StorageClassName,
+			Claim:            claim,
+		},
+	)
+
+	return PersistentVolumeResource{
+		PersistentVolume: persistentVolume,
+		Volume:           volume,
+		Claim:            claim,
 	}
 }

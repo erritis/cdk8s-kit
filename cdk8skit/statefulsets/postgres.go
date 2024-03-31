@@ -7,13 +7,15 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
-	configs "github.com/erritis/cdk8skit/v2/cdk8skit/configs"
-	volumes "github.com/erritis/cdk8skit/v2/cdk8skit/volumes"
+	configs "github.com/erritis/cdk8skit/v3/cdk8skit/configs"
+	volumes "github.com/erritis/cdk8skit/v3/cdk8skit/volumes"
 )
 
-type VolumeDefaultConfig struct {
+type VolumeConfig struct {
 	PrefixPersistentName *string
-	VolumeProps          *volumes.VolumeProps
+	StorageClassName     *string
+	Capacity             *cdk8s.Size
+	Volume               *cdk8splus26.Volume
 }
 
 type DBConfig struct {
@@ -23,14 +25,13 @@ type DBConfig struct {
 }
 
 type PostgresProps struct {
-	Image               *string
-	PrefixSecretName    *string
-	DBConfig            *DBConfig
-	PortConfig          *configs.ServicePortConfig
-	VolumeDefaultConfig *VolumeDefaultConfig
-	Volume              *cdk8splus26.Volume
-	Network             *string
-	Liveness            cdk8splus26.Probe
+	Image            *string
+	PrefixSecretName *string
+	DBConfig         *DBConfig
+	PortConfig       *configs.ServicePortConfig
+	VolumeConfig     *VolumeConfig
+	Network          *string
+	Liveness         cdk8splus26.Probe
 }
 
 func (props *PostgresProps) defaultProps(scope constructs.Construct) {
@@ -78,19 +79,22 @@ func (props *PostgresProps) defaultPortProps() {
 }
 
 func (props *PostgresProps) defaultVolumeProps(scope constructs.Construct) {
-	if props.VolumeDefaultConfig == nil {
-		props.VolumeDefaultConfig = &VolumeDefaultConfig{}
+	if props.VolumeConfig == nil {
+		props.VolumeConfig = &VolumeConfig{}
 	}
-	if props.VolumeDefaultConfig.PrefixPersistentName == nil {
-		props.VolumeDefaultConfig.PrefixPersistentName = jsii.String("persistent-volume")
+	if props.VolumeConfig.PrefixPersistentName == nil {
+		props.VolumeConfig.PrefixPersistentName = jsii.String("persistent-volume")
 	}
-	if *props.Volume == nil {
-		disk := volumes.NewVolume(
+	if props.VolumeConfig.Volume == nil {
+		hv := volumes.NewVolume(
 			scope,
-			*props.VolumeDefaultConfig.PrefixPersistentName,
-			props.VolumeDefaultConfig.VolumeProps,
+			*props.VolumeConfig.PrefixPersistentName,
+			&volumes.VolumeProps{
+				StorageClassName: props.VolumeConfig.StorageClassName,
+				Capacity:         props.VolumeConfig.Capacity,
+			},
 		)
-		props.Volume = &disk.Volume
+		props.VolumeConfig.Volume = &hv.Volume
 	}
 }
 
@@ -150,7 +154,7 @@ func NewPostgres(
 				jsii.String("POSTGRES_PASSWORD_FILE"): jsii.String(fmt.Sprintf("/run/secrets/%[1]s-passwd/%[1]s-passwd", *props.PrefixSecretName)),
 			},
 			Volumes: &map[*string]*cdk8splus26.Volume{
-				jsii.String("/var/lib/postgresql/data"):                                     props.Volume,
+				jsii.String("/var/lib/postgresql/data"):                                     props.VolumeConfig.Volume,
 				jsii.String(fmt.Sprintf("/run/secrets/%s", *props.PrefixSecretName)):        &db,
 				jsii.String(fmt.Sprintf("/run/secrets/%s-user", *props.PrefixSecretName)):   &dbUser,
 				jsii.String(fmt.Sprintf("/run/secrets/%s-passwd", *props.PrefixSecretName)): &dbPasswd,

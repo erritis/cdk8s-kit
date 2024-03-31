@@ -25,7 +25,7 @@ func NewSecretVolume(scope constructs.Construct, id string, name *string, value 
 		&cdk8splus26.SecretVolumeOptions{
 			Name: name,
 			Items: &map[string]*cdk8splus26.PathMapping{
-				"name": {Path: name},
+				*name: {Path: name},
 			},
 		},
 	)
