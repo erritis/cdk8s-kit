@@ -127,18 +127,21 @@ func NewPostgres(
 		scope, "name-secret",
 		props.PrefixSecretName,
 		props.DBConfig.Name,
+		&volumes.SecretVolumeProps{},
 	)
 
 	dbUser := volumes.NewSecretVolume(
 		scope, "user-secret",
 		jsii.String(fmt.Sprintf("%s-user", *props.PrefixSecretName)),
 		props.DBConfig.Username,
+		&volumes.SecretVolumeProps{},
 	)
 
 	dbPasswd := volumes.NewSecretVolume(
 		scope, "passwd-secret",
 		jsii.String(fmt.Sprintf("%s-passwd", *props.PrefixSecretName)),
 		props.DBConfig.Password,
+		&volumes.SecretVolumeProps{},
 	)
 
 	postgres := NewStatefulSet(

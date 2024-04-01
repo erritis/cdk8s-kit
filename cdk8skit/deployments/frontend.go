@@ -42,6 +42,7 @@ func NewFrontend(
 		PortConfig: props.PortConfig,
 		Network:    props.Network,
 		Variables:  props.Variables,
+		Volumes:    props.Volumes,
 	})
 
 	ingress := cdk8splus26.NewIngress(scope, jsii.String("ingress"), nil)
