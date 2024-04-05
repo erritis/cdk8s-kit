@@ -3,28 +3,32 @@ package cdk8skit
 import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
-	configs "github.com/erritis/cdk8skit/v3/cdk8skit/configs"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2"
 )
 
-type TupleFrontend struct {
-	Deployment cdk8splus26.Deployment
-	Service    cdk8splus26.Service
-	Ingress    cdk8splus26.Ingress
+type FrontendResource struct {
+	Deployment cdk8splus28.Deployment
+	Service    cdk8splus28.Service
+	Ingress    cdk8splus28.Ingress
+}
+
+type FrontendPort struct {
+	Port          *float64
+	ContainerPort *float64
 }
 
 type FrontendProps struct {
-	PortConfig    *configs.ServicePortConfig
+	Ports         *FrontendPort
 	Network       *string
 	Variables     *map[*string]*string
-	Volumes       *map[*string]*cdk8splus26.Volume
+	Volumes       *map[*string]*cdk8splus28.Volume
 	ClusterIssuer *string
 }
 
 func (props *FrontendProps) defaultProps() {
 
-	if props.PortConfig == nil {
-		props.PortConfig = &configs.ServicePortConfig{}
+	if props.Ports == nil {
+		props.Ports = &FrontendPort{}
 	}
 }
 
@@ -34,18 +38,21 @@ func NewFrontend(
 	host *string,
 	image *string,
 	props *FrontendProps,
-) TupleFrontend {
+) FrontendResource {
 
 	props.defaultProps()
 
 	backend := NewBackend(scope, id, image, &BackendProps{
-		PortConfig: props.PortConfig,
-		Network:    props.Network,
-		Variables:  props.Variables,
-		Volumes:    props.Volumes,
+		Ports: &BackendPort{
+			Port:          props.Ports.Port,
+			ContainerPort: props.Ports.ContainerPort,
+		},
+		Network:   props.Network,
+		Variables: props.Variables,
+		Volumes:   props.Volumes,
 	})
 
-	ingress := cdk8splus26.NewIngress(scope, jsii.String("ingress"), nil)
+	ingress := cdk8splus28.NewIngress(scope, jsii.String("ingress"), nil)
 
 	ingress.Metadata().AddLabel(jsii.String("io.service"), jsii.String(id))
 
@@ -56,11 +63,11 @@ func NewFrontend(
 	ingress.AddHostRule(
 		host,
 		jsii.String("/"),
-		cdk8splus26.IngressBackend_FromService(backend.Service, nil),
-		cdk8splus26.HttpIngressPathType_PREFIX,
+		cdk8splus28.IngressBackend_FromService(backend.Service, nil),
+		cdk8splus28.HttpIngressPathType_PREFIX,
 	)
 
-	return TupleFrontend{
+	return FrontendResource{
 		Deployment: backend.Deployment,
 		Service:    backend.Service,
 		Ingress:    ingress,

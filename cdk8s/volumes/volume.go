@@ -6,12 +6,12 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2"
 )
 
 type VolumeResource struct {
-	Volume cdk8splus26.Volume
-	Claim  cdk8splus26.IPersistentVolumeClaim
+	Volume cdk8splus28.Volume
+	Claim  cdk8splus28.PersistentVolumeClaim
 }
 
 type VolumeProps struct {
@@ -30,11 +30,11 @@ func NewVolume(scope constructs.Construct, id string, props *VolumeProps) Volume
 		Capacity:         props.Capacity,
 	})
 
-	volume := cdk8splus26.Volume_FromPersistentVolumeClaim(
+	volume := cdk8splus28.Volume_FromPersistentVolumeClaim(
 		scope,
 		jsii.String(id),
 		claim,
-		&cdk8splus26.PersistentVolumeClaimVolumeOptions{
+		&cdk8splus28.PersistentVolumeClaimVolumeOptions{
 			Name: jsii.String(claim_name),
 		},
 	)

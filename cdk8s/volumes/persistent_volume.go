@@ -6,13 +6,13 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2"
 )
 
 type PersistentVolumeResource struct {
-	PersistentVolume cdk8splus26.PersistentVolume
-	Volume           cdk8splus26.Volume
-	Claim            cdk8splus26.IPersistentVolumeClaim
+	PersistentVolume cdk8splus28.PersistentVolume
+	Volume           cdk8splus28.Volume
+	Claim            cdk8splus28.PersistentVolumeClaim
 }
 
 type PersistentVolumeProps struct {
@@ -43,25 +43,25 @@ func NewPersistentVolume(scope constructs.Construct, id string, props *Persisten
 
 	claim_name := fmt.Sprintf("%s-%s", *scope.Node().Id(), claim_id)
 
-	volume := cdk8splus26.Volume_FromPersistentVolumeClaim(
+	volume := cdk8splus28.Volume_FromPersistentVolumeClaim(
 		scope,
 		jsii.String(fmt.Sprintf("%s-ref", id)),
 		claim,
-		&cdk8splus26.PersistentVolumeClaimVolumeOptions{
+		&cdk8splus28.PersistentVolumeClaimVolumeOptions{
 			Name: jsii.String(claim_name),
 		},
 	)
 
-	persistentVolume := cdk8splus26.NewPersistentVolume(
+	persistentVolume := cdk8splus28.NewPersistentVolume(
 		scope,
 		jsii.String(id),
-		&cdk8splus26.PersistentVolumeProps{
-			VolumeMode: cdk8splus26.PersistentVolumeMode_FILE_SYSTEM,
-			AccessModes: &[]cdk8splus26.PersistentVolumeAccessMode{
-				cdk8splus26.PersistentVolumeAccessMode_READ_WRITE_ONCE,
-				cdk8splus26.PersistentVolumeAccessMode_READ_ONLY_MANY,
+		&cdk8splus28.PersistentVolumeProps{
+			VolumeMode: cdk8splus28.PersistentVolumeMode_FILE_SYSTEM,
+			AccessModes: &[]cdk8splus28.PersistentVolumeAccessMode{
+				cdk8splus28.PersistentVolumeAccessMode_READ_WRITE_ONCE,
+				cdk8splus28.PersistentVolumeAccessMode_READ_ONLY_MANY,
 			},
-			ReclaimPolicy:    cdk8splus26.PersistentVolumeReclaimPolicy_RETAIN,
+			ReclaimPolicy:    cdk8splus28.PersistentVolumeReclaimPolicy_RETAIN,
 			Storage:          *props.Capacity,
 			StorageClassName: props.StorageClassName,
 			Claim:            claim,

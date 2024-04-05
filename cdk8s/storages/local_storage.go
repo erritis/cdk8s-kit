@@ -6,7 +6,7 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2/k8s"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2/k8s"
 )
 
 type LocalStorageProps struct {

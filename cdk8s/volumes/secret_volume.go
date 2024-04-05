@@ -7,7 +7,7 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2"
 )
 
 type SecretVolumeProps struct {
@@ -20,14 +20,14 @@ func (props *SecretVolumeProps) defaultProps() {
 	}
 }
 
-func NewSecretVolume(scope constructs.Construct, id string, name *string, value *string, props *SecretVolumeProps) cdk8splus26.Volume {
+func NewSecretVolume(scope constructs.Construct, id string, name *string, value *string, props *SecretVolumeProps) cdk8splus28.Volume {
 
 	props.defaultProps()
 
-	secret := cdk8splus26.NewSecret(
+	secret := cdk8splus28.NewSecret(
 		scope,
 		jsii.String(id),
-		&cdk8splus26.SecretProps{Type: jsii.String("Opaque")},
+		&cdk8splus28.SecretProps{Type: jsii.String("Opaque")},
 	)
 
 	secret.AddStringData(name, value)
@@ -41,13 +41,13 @@ func NewSecretVolume(scope constructs.Construct, id string, name *string, value 
 		)
 	}
 
-	volume := cdk8splus26.Volume_FromSecret(
+	volume := cdk8splus28.Volume_FromSecret(
 		scope,
 		name,
 		secret,
-		&cdk8splus26.SecretVolumeOptions{
+		&cdk8splus28.SecretVolumeOptions{
 			Name: name,
-			Items: &map[string]*cdk8splus26.PathMapping{
+			Items: &map[string]*cdk8splus28.PathMapping{
 				*name: {Path: name},
 			},
 		},
@@ -67,7 +67,7 @@ func readFileAsString(filename string) (string, error) {
 	return content, nil
 }
 
-func SecretVolume_FromFile(scope constructs.Construct, id string, path *string, filename *string) cdk8splus26.Volume {
+func SecretVolume_FromFile(scope constructs.Construct, id string, path *string, filename *string) cdk8splus28.Volume {
 
 	content, err := readFileAsString(*path)
 	if err != nil {

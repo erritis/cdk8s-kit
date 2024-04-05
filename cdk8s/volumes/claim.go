@@ -4,7 +4,7 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus26/v2"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2"
 )
 
 type ClaimProps struct {
@@ -22,17 +22,17 @@ func (props *ClaimProps) defaultProps() {
 	}
 }
 
-func newClaim(scope constructs.Construct, id string, props *ClaimProps) cdk8splus26.PersistentVolumeClaim {
+func newClaim(scope constructs.Construct, id string, props *ClaimProps) cdk8splus28.PersistentVolumeClaim {
 
 	props.defaultProps()
 
-	claim := cdk8splus26.NewPersistentVolumeClaim(
+	claim := cdk8splus28.NewPersistentVolumeClaim(
 		scope,
 		jsii.String(id),
-		&cdk8splus26.PersistentVolumeClaimProps{
-			AccessModes: &[]cdk8splus26.PersistentVolumeAccessMode{
-				cdk8splus26.PersistentVolumeAccessMode_READ_WRITE_ONCE,
-				cdk8splus26.PersistentVolumeAccessMode_READ_ONLY_MANY,
+		&cdk8splus28.PersistentVolumeClaimProps{
+			AccessModes: &[]cdk8splus28.PersistentVolumeAccessMode{
+				cdk8splus28.PersistentVolumeAccessMode_READ_WRITE_ONCE,
+				cdk8splus28.PersistentVolumeAccessMode_READ_ONLY_MANY,
 			},
 			Storage:          *props.Capacity,
 			StorageClassName: props.StorageClassName,
