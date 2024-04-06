@@ -10,7 +10,9 @@ import (
 )
 
 type KubePostgresResource struct {
-	KubeStatefulSetResource
+	StatefulSet k8s.KubeStatefulSet
+	Service     k8s.KubeService
+	Props       KubePostgresProps
 }
 
 type KubePostgresVolumeSettings struct {
@@ -90,7 +92,7 @@ func (props *KubePostgresProps) defaultVolumeProps(id string) {
 		props.VolumeSettings.PrefixSecretName = jsii.String("postgres")
 	}
 	if props.VolumeSettings.PrefixPersistentName == nil {
-		props.VolumeSettings.PrefixPersistentName = jsii.String("persistent")
+		props.VolumeSettings.PrefixPersistentName = jsii.String(fmt.Sprintf("%s-claim", *props.VolumeSettings.PrefixSecretName))
 	}
 	if props.VolumeSettings.Capacity == nil {
 		quantity := k8s.Quantity_FromString(jsii.String("0.1Gi"))
@@ -194,6 +196,8 @@ func NewKubePostgres(
 	)
 
 	return KubePostgresResource{
-		statefulSetResource,
+		StatefulSet: statefulSetResource.StatefulSet,
+		Service:     statefulSetResource.Service,
+		Props:       *props,
 	}
 }
