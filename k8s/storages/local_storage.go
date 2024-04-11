@@ -23,22 +23,16 @@ func NewLocalStorage(scope constructs.Construct, id string, props *LocalStorageP
 
 	props.defaultProps()
 
-	annotations := make(map[string]*string)
-
-	annotations["storageclass.kubernetes.io/is-default-class"] = jsii.String(fmt.Sprintf("%t", *props.IsDefault))
-
-	metadata := k8s.ObjectMeta{
-		Name:        jsii.String(id),
-		Annotations: &annotations,
-	}
-
-	storageProps := k8s.KubeStorageClassProps{
-		Provisioner:       jsii.String("kubernetes.io/no-provisioner"),
-		Metadata:          &metadata,
+	storage := k8s.NewKubeStorageClass(scope, jsii.String(id), &k8s.KubeStorageClassProps{
+		Provisioner: jsii.String("kubernetes.io/no-provisioner"),
+		Metadata: &k8s.ObjectMeta{
+			Name: jsii.String(id),
+			Annotations: &map[string]*string{
+				"storageclass.kubernetes.io/is-default-class": jsii.String(fmt.Sprintf("%t", *props.IsDefault)),
+			},
+		},
 		VolumeBindingMode: jsii.String("WaitForFirstConsumer"),
-	}
-
-	storage := k8s.NewKubeStorageClass(scope, jsii.String(id), &storageProps)
+	})
 
 	storage.AddJsonPatch(cdk8s.JsonPatch_Replace(jsii.String("/metadata/namespace"), new(*string)))
 

@@ -109,7 +109,6 @@ func (props *KubePostgresProps) defaultVolumeProps(id string) {
 			Spec: &k8s.PersistentVolumeClaimSpec{
 				AccessModes: &[]*string{
 					jsii.String("ReadWriteOnce"),
-					jsii.String("ReadOnlyMany"),
 				},
 				Resources: &k8s.ResourceRequirements{
 					Requests: &map[string]k8s.Quantity{

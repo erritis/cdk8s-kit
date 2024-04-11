@@ -32,7 +32,6 @@ func newClaim(scope constructs.Construct, id string, props *ClaimProps) cdk8splu
 		&cdk8splus28.PersistentVolumeClaimProps{
 			AccessModes: &[]cdk8splus28.PersistentVolumeAccessMode{
 				cdk8splus28.PersistentVolumeAccessMode_READ_WRITE_ONCE,
-				cdk8splus28.PersistentVolumeAccessMode_READ_ONLY_MANY,
 			},
 			Storage:          *props.Capacity,
 			StorageClassName: props.StorageClassName,

@@ -59,7 +59,6 @@ func NewPersistentVolume(scope constructs.Construct, id string, props *Persisten
 			VolumeMode: cdk8splus28.PersistentVolumeMode_FILE_SYSTEM,
 			AccessModes: &[]cdk8splus28.PersistentVolumeAccessMode{
 				cdk8splus28.PersistentVolumeAccessMode_READ_WRITE_ONCE,
-				cdk8splus28.PersistentVolumeAccessMode_READ_ONLY_MANY,
 			},
 			ReclaimPolicy:    cdk8splus28.PersistentVolumeReclaimPolicy_RETAIN,
 			Storage:          *props.Capacity,

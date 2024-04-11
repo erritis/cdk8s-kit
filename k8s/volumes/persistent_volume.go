@@ -35,7 +35,6 @@ func NewKubePersistentVolume(scope constructs.Construct, id string, claim_name *
 				},
 				AccessModes: &[]*string{
 					jsii.String("ReadWriteOnce"),
-					jsii.String("ReadOnlyMany"),
 				},
 				Capacity: &map[string]k8s.Quantity{
 					"storage": *props.Capacity,
