@@ -70,6 +70,7 @@ func NewKubeStatefulSet(
 				},
 				Ports: &[]*k8s.ServicePort{
 					{
+						Name:       jsii.String(fmt.Sprintf("%d", int(*props.Ports.Port))),
 						Port:       props.Ports.Port,
 						TargetPort: k8s.IntOrString_FromNumber(props.Ports.ContainerPort),
 					},

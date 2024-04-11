@@ -104,6 +104,7 @@ func NewBackend(
 		ServiceType: cdk8splus28.ServiceType_CLUSTER_IP,
 		Ports: &[]*cdk8splus28.ServicePort{
 			{
+				Name:       jsii.String(fmt.Sprintf("%d", int(*props.Ports.Port))),
 				Port:       props.Ports.Port,
 				TargetPort: props.Ports.ContainerPort,
 			},

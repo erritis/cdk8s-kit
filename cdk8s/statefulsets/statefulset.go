@@ -1,6 +1,8 @@
 package cdk8skit
 
 import (
+	"fmt"
+
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
@@ -86,6 +88,7 @@ func NewStatefulSet(
 					Type: cdk8splus28.ServiceType_CLUSTER_IP,
 					Ports: &[]*cdk8splus28.ServicePort{
 						{
+							Name:       jsii.String(fmt.Sprintf("%d", int(*props.Ports.Port))),
 							Port:       props.Ports.Port,
 							TargetPort: props.Ports.ContainerPort,
 						},

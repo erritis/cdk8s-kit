@@ -1,8 +1,11 @@
 package cdk8skit
 
 import (
+	"fmt"
+
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
+	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus28/v2"
 )
 
@@ -52,20 +55,36 @@ func NewFrontend(
 		Volumes:   props.Volumes,
 	})
 
-	ingress := cdk8splus28.NewIngress(scope, jsii.String("ingress"), nil)
-
-	ingress.Metadata().AddLabel(jsii.String("io.service"), jsii.String(id))
+	annotations := make(map[string]*string)
 
 	if props.ClusterIssuer != nil {
-		ingress.Metadata().AddAnnotation(jsii.String("cert-manager.io/cluster-issuer"), props.ClusterIssuer)
+		annotations["cert-manager.io/cluster-issuer"] = props.ClusterIssuer
 	}
 
-	ingress.AddHostRule(
-		host,
-		jsii.String("/"),
-		cdk8splus28.IngressBackend_FromService(backend.Service, nil),
-		cdk8splus28.HttpIngressPathType_PREFIX,
-	)
+	ingress := cdk8splus28.NewIngress(scope, jsii.String("ingress"), &cdk8splus28.IngressProps{
+		Metadata: &cdk8s.ApiObjectMetadata{
+			Labels: &map[string]*string{
+				"io.service": jsii.String(id),
+			},
+			Annotations: &annotations,
+		},
+		Rules: &[]*cdk8splus28.IngressRule{
+			{
+				Host:     host,
+				Path:     jsii.String("/"),
+				Backend:  cdk8splus28.IngressBackend_FromService(backend.Service, nil),
+				PathType: cdk8splus28.HttpIngressPathType_PREFIX,
+			},
+		},
+		Tls: &[]*cdk8splus28.IngressTls{
+			{
+				Hosts: &[]*string{
+					host,
+				},
+				Secret: cdk8splus28.Secret_FromSecretName(scope, &id, jsii.String(fmt.Sprintf("%s-tls", id))),
+			},
+		},
+	})
 
 	return FrontendResource{
 		Deployment: backend.Deployment,
